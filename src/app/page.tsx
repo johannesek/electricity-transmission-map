@@ -1,101 +1,260 @@
-import Image from "next/image";
+"use client"
+
+import React, { useState, useEffect } from 'react';
+import {NextUIProvider} from "@nextui-org/react";
+import DeckGL from '@deck.gl/react';
+import {Map} from 'react-map-gl/maplibre';
+import {GeoJsonLayer} from '@deck.gl/layers';
+import { TripsLayer } from '@deck.gl/geo-layers';
+import type {Feature, Geometry} from 'geojson';
+import type {PickingInfo} from '@deck.gl/core';
+import {Slider} from '@nextui-org/react';
+import {Button, ButtonGroup} from "@nextui-org/button";
+import {Tooltip} from "@nextui-org/react";
+
+type PropertiesType = {
+  zoneName: string;
+};
+
+type TransmissionType = {
+    source: string;
+    target: string;
+    value: number;
+    value_rel: number; // value relative to the maximum value over all timestamps
+    timestamps: number[];
+    path: number[];
+};
+  
+
+const colorMap = (percentage: number) => {
+    const r = 255 * percentage;
+    const g = 255 * (1 - percentage);
+    return [r, g, 0];
+};
+
+const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json'
+// const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    // document.title = "Cross-border electricity transmission";
+    
+    const [time, setTime] = useState(0);
+    const [step, setStep] = useState(0.01);
+    const [running, setRunning] = useState(true);
+    const [trailLength, setTrailLength] = useState(1);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    // const intervalMS = 10;
+    // const loopLength = 1800;
+
+    // useEffect(() => {
+    // const interval = setInterval(() => {
+    //     setTime(t => (t + step) % loopLength);
+    // }, intervalMS);
+
+    // return () => clearInterval(interval);
+    // }, []);
+
+    // const step = 0.01;
+    const loopLength = 1338;
+    let loopRunning = true;
+    const [animation] = useState({id: 0});
+
+    const animate = () => {
+        if (loopRunning) {
+            setTime(t => (t + step) % loopLength);
+            animation.id = window.requestAnimationFrame(animate);
+        }
+    }
+
+    const changeStep = (newStep: number) => {
+        if (running) {
+            setStep(newStep);
+            window.cancelAnimationFrame(animation.id);
+            animation.id = window.requestAnimationFrame(animate);
+        } else {
+            setStep(newStep);
+        }
+    }
+
+    useEffect(() => {
+        if (!running) {
+          loopRunning = false;
+          window.cancelAnimationFrame(animation.id);
+          return;
+        }
+    
+        loopRunning = true;
+        animation.id = window.requestAnimationFrame(animate); // start animation
+        return () => {
+          loopRunning = false;
+          window.cancelAnimationFrame(animation.id);
+        };
+      }, [running]);
+
+    const bidding_zones = new GeoJsonLayer<PropertiesType>({
+        id: 'GeoJsonLayer',
+        data: 'world.geojson',
+        stroked: true,
+        filled: true,
+        pointType: 'circle+text',
+        pickable: false,
+        getFillColor: [160, 160, 180, 0],
+        getLineColor: [150, 150, 150],
+        getText: (f: Feature<Geometry, PropertiesType>) => f.properties.zoneName,
+        getLineWidth: 1500,
+        getPointRadius: 4,
+        getTextSize: 20
+    });
+
+    const trips = new TripsLayer<TransmissionType>({
+        id: 'trips',
+        data: 'exports.json',
+        getPath: d => d.path,
+        getTimestamps: d => d.timestamps,
+        getWidth: d => d.value,
+        // #getColor: d => [d.value/100, 80, 170],
+        // getColor: d => [d.value / d.implicit_allocation * 255, 255 - (d.value / d.implicit_allocation * 255), 0],
+        getColor: d => colorMap(d.value_rel),
+        opacity: 0.6,
+        rounded: true,
+        trailLength: trailLength,
+        currentTime: time,
+        pickable: true,
+    });
+
+    return (
+        
+    <NextUIProvider>
+      <div>
+            <div className='mapbox'>
+                <DeckGL
+                    initialViewState={{
+                    longitude: 14.0,
+                    latitude: 59.0,
+                    zoom: 4,
+                    pitch: 0
+                    }}
+                    controller
+                    // getTooltip={({object}: PickingInfo<Feature<Geometry, PropertiesType>>) => object && object.target}
+                    getTooltip={({object}: PickingInfo<TransmissionType>) => 
+                        object && `${object.source} - ${object.target} : ${object.value} MW`
+                      }
+                    layers={[bidding_zones, trips]}
+                >
+                <Map reuseMaps mapStyle={MAP_STYLE} />
+            </DeckGL>
+            </div>
+
+            <div className="z-2 w-1/4 p-4 absolute bg-gray-700 bg-opacity-80 rounded-lg top-10 left-10 flex flex-col space-y-3 justify-items-end">
+                <div>
+                    <Slider
+                    startContent={
+                        <Button size="sm" radius="full" isIconOnly onClick={() => setTime(time - 1)} style={{ backgroundColor: 'transparent' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                            </svg>
+                        </Button>
+                    }
+                    endContent={
+                        <Button size="sm" radius="full" isIconOnly onClick={() => setTime(time + 1)} style={{ backgroundColor: 'transparent' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </Button>
+                    }
+                    label="Date"
+                    minValue={0}
+                    maxValue={loopLength}
+                    step={1}
+                    value={time}
+                    getValue={value => new Date(2021, 1, 1 + Number(value)).toDateString()}
+                    onChange={value => { setTime(Number(value)); }}
+                    />
+                </div>
+
+                {/* Slider for step size of the animation */}
+                <div>
+                    <Slider
+                    startContent={
+                        <Button size="sm" radius="full" isIconOnly onClick={() => changeStep(step - 0.001)} style={{ backgroundColor: 'transparent' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                            </svg>
+                        </Button>
+                    }
+                    endContent={
+                        <Button size="sm" radius="full" isIconOnly onClick={() => changeStep(step + 0.001)} style={{ backgroundColor: 'transparent' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </Button>
+                    }
+                    label="Animation speed"
+                    minValue={0.001}
+                    maxValue = {0.2}
+                    step={0.001}
+                    value={step}
+                    onChange={value => { changeStep(Number(value)); }}
+                    />
+                </div>
+                {/* Set trail length */}
+                <div>
+                  <Slider
+                startContent={
+                    <Button size="sm" radius="full" isIconOnly onClick={() => setTrailLength(trailLength - 0.1)} style={{ backgroundColor: 'transparent' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
+                    </Button>
+                }
+                endContent={
+                    <Button size="sm" radius="full" isIconOnly onClick={() => setTrailLength(trailLength + 0.1)} style={{ backgroundColor: 'transparent' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </Button>
+                }
+                  label="Trail length"
+                  minValue={0.1}
+                  maxValue={10}
+                  step={0.1}
+                  value={trailLength}
+                  getValue={value => value + " days"}
+                  onChange={value => { setTrailLength(Number(value)); }}
+                  />
+                </div>
+                {/* button to play/pause the animation */}
+                <Button
+                  onClick={() => { setRunning(!running) }}
+                  color="primary"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5V18M15 7.5V18M3 16.811V8.69c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811Z" />
+                </svg>
+                </Button>
+
+                {/* <Button onClick={() => { setRunning(!running) }}>{running ? "Pause" : "Play"}</Button> */}
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        <div className="absolute right-2 w-1/3 text-white bottom-10 px-10 z-10 bottom-0.1 grid grid-cols-3 gap-0 justify-between">
+            <div className="col-span-full bg-gradient-to-r m-4from-0% from-green-500 to-red-500 to-100% h-3"></div>
+            <div className="col-span-1 text-left">0%</div>
+            <div className="col-span-1 text-center">
+                <span className="inline-flex items-center gap-1">
+                    <span>Utilization</span>
+                    <span>
+                        <Tooltip content="Percentage of the maximum transmission obtained over the whole time period over the specific line.">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                            </svg>
+                        </Tooltip>
+                    </span>
+                </span>
+            </div>
+            <div className="col-span-1 text-right">100%</div>
+        </div>
+
+    </NextUIProvider>
+    );
 }
+

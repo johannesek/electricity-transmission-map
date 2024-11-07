@@ -1,0 +1,48 @@
+* {
+    display: inline
+}
+
+.toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    z-index: 2;
+    background-color: rgb(127, 127, 127, 0.5);
+    border-radius: 5px;
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    height: 15vh;
+    width: 35vw;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden; /* Hides content when collapsed */
+    max-height: 200px; /* Adjust as needed for expanded height */
+}
+
+.toolbar > div {
+    width: 100%;
+}
+
+.toolbar input[type="range"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mapbox {
+    z-index: 1;
+    height: "80vh";
+    width: "80vw";
+    margin: "2rem";
+}
+
+.colorbar {
+    gap: 0.5rem;
+    padding: 1rem;
+    /* z-index: 2; */
+    border-radius: 5px;
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    color: grey;
+}
