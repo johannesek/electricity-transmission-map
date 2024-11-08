@@ -128,7 +128,7 @@ export default function Home() {
                     controller
                     // getTooltip={({object}: PickingInfo<Feature<Geometry, PropertiesType>>) => object && object.target}
                     getTooltip={({object}: PickingInfo<TransmissionType>) => 
-                        object && `${object.source} - ${object.target} : ${object.value} MW`
+                        object ? `${object.source} - ${object.target} : ${object.value} MW` : null
                       }
                     layers={[bidding_zones, trips]}
                 >
