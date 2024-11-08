@@ -31,7 +31,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     setRunning,
 }) => {
     return (
-        <div className="z-2 p-4 absolute rounded-lg top-2rem left-10 flex flex-col space-y-3 justify-items-end">
+        <div className="z-2 p-4 absolute rounded-lg top-2rem left-2rem flex flex-col space-y-3 justify-items-end">
             <Dropdown closeOnSelect={false}
                 className="min-w-[40vw] bg-opacity-80"
             >
