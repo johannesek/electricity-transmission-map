@@ -9,7 +9,7 @@ import { TripsLayer } from '@deck.gl/geo-layers';
 import type {Feature, Geometry} from 'geojson';
 import type {PickingInfo} from '@deck.gl/core';
 import {Slider} from '@nextui-org/react';
-import {Button, ButtonGroup} from "@nextui-org/button";
+import {Button} from "@nextui-org/button";
 import {Tooltip} from "@nextui-org/react";
 
 type PropertiesType = {
@@ -23,13 +23,6 @@ type TransmissionType = {
     value_rel: number; // value relative to the maximum value over all timestamps
     timestamps: number[];
     path: number[];
-};
-  
-
-const colorMap = (percentage: number) => {
-    const r = 255 * percentage;
-    const g = 255 * (1 - percentage);
-    return [r, g, 0];
 };
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json'
@@ -112,9 +105,7 @@ export default function Home() {
         getPath: d => d.path,
         getTimestamps: d => d.timestamps,
         getWidth: d => d.value,
-        // #getColor: d => [d.value/100, 80, 170],
-        // getColor: d => [d.value / d.implicit_allocation * 255, 255 - (d.value / d.implicit_allocation * 255), 0],
-        getColor: d => colorMap(d.value_rel),
+        getColor: d =>  [255 * d.value_rel, 255 * (1 - d.value_rel), 0],
         opacity: 0.6,
         rounded: true,
         trailLength: trailLength,
@@ -163,6 +154,7 @@ export default function Home() {
                         </Button>
                     }
                     label="Date"
+                    size="sm"
                     minValue={0}
                     maxValue={loopLength}
                     step={1}
@@ -190,6 +182,7 @@ export default function Home() {
                         </Button>
                     }
                     label="Animation speed"
+                    size="sm"
                     minValue={0.001}
                     maxValue = {0.5}
                     step={0.001}
@@ -215,6 +208,7 @@ export default function Home() {
                     </Button>
                 }
                   label="Trail length"
+                  size="sm"
                   minValue={0.1}
                   maxValue={10}
                   step={0.1}
