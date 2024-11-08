@@ -50,7 +50,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                             maxValue={loopLength}
                             step={1}
                             value={time}
-                            getValue={value => new Date(2021, 0, 1 + Math.floor(time)).toDateString()}
+                            getValue={() => new Date(2021, 0, 1 + Math.floor(time)).toDateString()}
                             onChange={value => { setTime(Number(value)); }}
                         />
                     </DropdownItem>
