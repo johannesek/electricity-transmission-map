@@ -1,5 +1,5 @@
 import React from 'react';
-import { Slider, Button } from '@nextui-org/react';
+import { Button } from '@nextui-org/react';
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, DropdownSection } from "@nextui-org/react";
 import SliderWithButtons from './SliderWithButtons';
 

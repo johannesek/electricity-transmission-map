@@ -8,7 +8,6 @@ import {GeoJsonLayer} from '@deck.gl/layers';
 import { TripsLayer } from '@deck.gl/geo-layers';
 import type {Feature, Geometry} from 'geojson';
 import type {PickingInfo} from '@deck.gl/core';
-import {Button} from "@nextui-org/button";
 import {Tooltip} from "@nextui-org/react";
 
 import Toolbar from './components/Toolbar';
