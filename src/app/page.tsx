@@ -37,6 +37,8 @@ export default function Home() {
     let loopRunning = true;
     const [animation] = useState({id: 0});
 
+    const date = new Date(2021, 0, 1 + Math.floor(time));
+
     const animate = () => {
         if (loopRunning) {
             setTime(t => (t + step) % loopLength);
@@ -153,6 +155,9 @@ export default function Home() {
                 </span>
             </div>
             <div className="col-span-1 text-right">100%</div>
+        </div>
+        <div className="absolute top-3 right-3 text-white text-xl">
+            {date.toDateString()} 
         </div>
         <div className="absolute bottom-3 left-3 text-white text-xl">
             Total daily cross-border electricity transmission
