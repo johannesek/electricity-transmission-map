@@ -158,7 +158,7 @@ export default function Home() {
                         <Tooltip content={
                             <div className="px-1 py-2">
                                 <div className="text-small font-bold">Percentage of the maximum transmitted electricity over the whole time period over the specific line.</div>
-                                <div className="text-tiny">This might not reflect the utilization compared to the physical maximal capacity of the tansmission line.</div>
+                                <div className="text-tiny">This might not reflect the utilization compared to the physical maximal capacity of the transmission line.</div>
                             </div>
                         }>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -169,6 +169,9 @@ export default function Home() {
                 </span>
             </div>
             <div className="col-span-1 text-right">100%</div>
+        </div>
+        <div className="absolute bottom-2 right-2 text-white text-xs">
+            Data sources: <a href="https://transparency.entsoe.eu">ENTSO-e</a>, <a href="https://github.com/electricitymaps" target="_blank" rel="noopener noreferrer">Electricitymaps</a>
         </div>
 
     </NextUIProvider>
