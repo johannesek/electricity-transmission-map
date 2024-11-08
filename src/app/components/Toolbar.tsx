@@ -43,7 +43,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </DropdownTrigger>
             <DropdownMenu aria-label="Settings">
                 <DropdownSection showDivider>
-                    <DropdownItem key="date-slider" variant='light'>
+                    <DropdownItem key="date-slider">
                         <SliderWithButtons
                             label="Date"
                             minValue={0}

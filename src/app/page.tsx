@@ -29,25 +29,10 @@ const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-styl
 // const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json';
 
 export default function Home() {
-    // document.title = "Cross-border electricity transmission";
-    
     const [time, setTime] = useState(0);
     const [step, setStep] = useState(0.01);
     const [running, setRunning] = useState(true);
     const [trailLength, setTrailLength] = useState(1);
-
-    // const intervalMS = 10;
-    // const loopLength = 1800;
-
-    // useEffect(() => {
-    // const interval = setInterval(() => {
-    //     setTime(t => (t + step) % loopLength);
-    // }, intervalMS);
-
-    // return () => clearInterval(interval);
-    // }, []);
-
-    // const step = 0.01;
     const loopLength = 1338;
     let loopRunning = true;
     const [animation] = useState({id: 0});
@@ -127,7 +112,7 @@ export default function Home() {
                 controller
                 // getTooltip={({object}: PickingInfo<Feature<Geometry, PropertiesType>>) => object && object.target}
                 getTooltip={({object}: PickingInfo<TransmissionType>) => 
-                    object ? `${object.source} - ${object.target} : ${object.value} MW` : null
+                    object ? `${object.source} - ${object.target} : ${object.value} MWh` : null
                     }
                 layers={[bidding_zones, trips]}
                 >
@@ -168,6 +153,9 @@ export default function Home() {
                 </span>
             </div>
             <div className="col-span-1 text-right">100%</div>
+        </div>
+        <div className="absolute bottom-3 left-3 text-white text-xl">
+            Total daily cross-border electricity transmission
         </div>
         <div className="absolute bottom-2 right-2 text-white text-xs">
             Data sources: <a href="https://transparency.entsoe.eu">ENTSO-e</a>, <a href="https://github.com/electricitymaps" target="_blank" rel="noopener noreferrer">Electricitymaps</a>
