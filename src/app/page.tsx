@@ -116,37 +116,36 @@ export default function Home() {
     return (
         
     <NextUIProvider>
-      <div>
-            <div className='mapbox'>
-                <DeckGL
-                    initialViewState={{
-                    longitude: 14.0,
-                    latitude: 59.0,
-                    zoom: 4,
-                    pitch: 0
-                    }}
-                    controller
-                    // getTooltip={({object}: PickingInfo<Feature<Geometry, PropertiesType>>) => object && object.target}
-                    getTooltip={({object}: PickingInfo<TransmissionType>) => 
-                        object ? `${object.source} - ${object.target} : ${object.value} MW` : null
-                      }
-                    layers={[bidding_zones, trips]}
+        <div className='mapbox'>
+            <DeckGL
+                initialViewState={{
+                longitude: 14.0,
+                latitude: 59.0,
+                zoom: 4,
+                pitch: 0
+                }}
+                controller
+                // getTooltip={({object}: PickingInfo<Feature<Geometry, PropertiesType>>) => object && object.target}
+                getTooltip={({object}: PickingInfo<TransmissionType>) => 
+                    object ? `${object.source} - ${object.target} : ${object.value} MW` : null
+                    }
+                layers={[bidding_zones, trips]}
                 >
                 <Map reuseMaps mapStyle={MAP_STYLE} />
             </DeckGL>
-            </div>
-                <Toolbar 
-                    time={time} 
-                    setTime={setTime} 
-                    loopLength={loopLength} 
-                    step={step} 
-                    changeStep={changeStep} 
-                    trailLength={trailLength} 
-                    setTrailLength={setTrailLength} 
-                    running={running} 
-                    setRunning={setRunning} 
-                /> 
-       
+        </div>
+        <div className="z-2 p-4 absolute rounded-lg top-2rem left-2rem flex flex-col space-y-3 justify-items-end">
+            <Toolbar 
+                time={time} 
+                setTime={setTime} 
+                loopLength={loopLength} 
+                step={step} 
+                changeStep={changeStep} 
+                trailLength={trailLength} 
+                setTrailLength={setTrailLength} 
+                running={running} 
+                setRunning={setRunning} 
+            /> 
         </div>
         <div className="absolute right-2 w-1/3 text-white bottom-10 px-10 z-10 bottom-0.1 grid grid-cols-3 gap-0 justify-between">
             <div className="col-span-full bg-gradient-to-r m-4from-0% from-green-500 to-red-500 to-100% h-3"></div>
