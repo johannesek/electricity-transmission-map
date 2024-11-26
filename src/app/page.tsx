@@ -116,12 +116,9 @@ export default function Home() {
                 getTooltip={({object}: PickingInfo) => {
                     if (object) {
                         if (object.source) {
-                            return `${object.source} - ${object.target} : ${object.value} MWh`;
+                            return `${object.source} → ${object.target} : ${object.value} MWh`;
                         } else if (object.properties.zoneName) {
-                            const zoneName = object.properties.zoneName;
-                            const trimmedZoneName = zoneName.includes('-') ? zoneName.split('-')[1] : zoneName;
-                            return trimmedZoneName;
-                            // return object.properties.zoneName;  
+                            return object.properties.zoneName
                         } else {
                             return null;
                         }
