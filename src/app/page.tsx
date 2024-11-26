@@ -77,7 +77,7 @@ export default function Home() {
         stroked: true,
         filled: true,
         pointType: 'circle+text',
-        pickable: false,
+        pickable: true,
         getFillColor: [160, 160, 180, 0],
         getLineColor: [150, 150, 150],
         getText: (f: Feature<Geometry, PropertiesType>) => f.properties.zoneName,
@@ -113,9 +113,19 @@ export default function Home() {
                 }}
                 controller
                 // getTooltip={({object}: PickingInfo<Feature<Geometry, PropertiesType>>) => object && object.target}
-                getTooltip={({object}: PickingInfo<TransmissionType>) => 
-                    object ? `${object.source} - ${object.target} : ${object.value} MWh` : null
-                    }
+                getTooltip={({object}: PickingInfo) => {
+                    if (object) {
+                        if (object.source) {
+                            return `${object.source} - ${object.target} : ${object.value} MWh`;
+                        } else if (object.properties.zoneName) {
+                            const zoneName = object.properties.zoneName;
+                            const trimmedZoneName = zoneName.includes('-') ? zoneName.split('-')[1] : zoneName;
+                            return trimmedZoneName;
+                            // return object.properties.zoneName;  
+                        } else {
+                            return null;
+                        }
+                    }}}
                 layers={[bidding_zones, trips]}
                 >
                 <Map reuseMaps mapStyle={MAP_STYLE} />
