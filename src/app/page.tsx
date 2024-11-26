@@ -150,8 +150,8 @@ export default function Home() {
                     <span>
                         <Tooltip content={
                             <div className="px-1 py-2">
-                                <div className="text-small font-bold">Percentage of the maximum transmitted electricity over the whole time period over the specific line.</div>
-                                <div className="text-tiny">This might not reflect the utilization compared to the physical maximal capacity of the transmission line.</div>
+                                <div className="text-small font-bold">% of the maximum transmitted electricity over the time span of the animation over the specific transmission line.</div>
+                                <div className="text-tiny">This might not reflect the utilization compared to the physical maximum capacity of the transmission line.</div>
                             </div>
                         }>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
