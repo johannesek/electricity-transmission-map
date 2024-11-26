@@ -17,8 +17,6 @@ type ToolbarProps = {
 };
 
 
-
-
 const Toolbar: React.FC<ToolbarProps> = ({
     time,
     setTime,

@@ -33,7 +33,7 @@ export default function Home() {
     const [step, setStep] = useState(0.01);
     const [running, setRunning] = useState(true);
     const [trailLength, setTrailLength] = useState(1);
-    const loopLength = 1338;
+    const loopLength = 1339;
     let loopRunning = true;
     const [animation] = useState({id: 0});
 
