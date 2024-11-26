@@ -61,7 +61,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                             maxValue={0.5}
                             step={0.001}
                             value={step}
-                            getValue={value => String(value)}
+                            getValue={() => ""}
                             onChange={value => { changeStep(Number(value)); }}
                         />
                     </DropdownItem>
